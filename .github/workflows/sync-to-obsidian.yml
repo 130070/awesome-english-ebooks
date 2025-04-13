@@ -44,7 +44,7 @@ jobs:
           output = json
           s3 =
             addressing_style = virtual
-            endpoint_url = https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+            endpoint_url = https://0c631cf1ad0f49201a8262eb0b4d5214.r2.cloudflarestorage.com
           EOF
 
           echo "AWS CLI配置："
