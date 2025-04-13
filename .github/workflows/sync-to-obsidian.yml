@@ -1,0 +1,155 @@
+name: 同步外刊到Cloudflare R2
+
+on:
+  # 在同步上游仓库工作流完成后运行
+  workflow_run:
+    workflows: ["同步上游仓库"]
+    types:
+      - completed
+  # 允许手动触发
+  workflow_dispatch:
+
+jobs:
+  sync-to-r2:
+    runs-on: ubuntu-latest
+    # 只有当触发的工作流成功完成时才运行
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      # 检出当前仓库代码（使用稀疏检出策略，只检出必要的目录结构）
+      - name: 检出当前仓库
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            01_economist
+            02_new_yorker
+            04_atlantic
+            05_wired
+          sparse-checkout-cone-mode: true
+      
+      # 安装AWS CLI（Cloudflare R2兼容S3协议）
+      - name: 安装AWS CLI
+        uses: unfor19/install-aws-cli-action@v1
+        with:
+          version: 2
+      
+      # 配置AWS凭证（用于访问Cloudflare R2）
+      - name: 配置AWS凭证
+        run: |
+          mkdir -p ~/.aws
+          cat > ~/.aws/credentials << EOF
+          [default]
+          aws_access_key_id = ${{ secrets.R2_ACCESS_KEY_ID }}
+          aws_secret_access_key = ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          EOF
+          
+          cat > ~/.aws/config << EOF
+          [default]
+          region = auto
+          output = json
+          s3 =
+            addressing_style = virtual
+            endpoint_url = https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          EOF
+
+      # 列出目录内容，以便于调试
+      - name: 列出目录内容
+        run: |
+          echo "列出经济学人目录内容："
+          ls -la ./01_economist || echo "经济学人目录不存在"
+          echo "列出纽约客目录内容："
+          ls -la ./02_new_yorker || echo "纽约客目录不存在"
+          echo "列出Atlantic目录内容："
+          ls -la ./04_atlantic || echo "Atlantic目录不存在"
+          echo "列出Wired目录内容："
+          ls -la ./05_wired || echo "Wired目录不存在"
+
+      # 同步经济学人到R2存储桶
+      - name: 同步经济学人到R2存储桶
+        run: |
+          if [ -d "./01_economist" ]; then
+            LATEST_ECONOMIST_DIR=$(find ./01_economist -maxdepth 1 -type d | sort -r | head -n 1)
+            if [ -n "$LATEST_ECONOMIST_DIR" ]; then
+              for file in "$LATEST_ECONOMIST_DIR"/*.pdf; do
+                if [ -f "$file" ]; then
+                  filename=$(basename "$file")
+                  s3_key="economist/${filename}"
+                  echo "正在上传文件到R2存储桶：$s3_key"
+                  aws s3 cp "$file" s3://${{ secrets.R2_BUCKET_NAME }}/$s3_key --endpoint-url=https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+                fi
+              done
+              echo "经济学人文件已上传到R2存储桶。"
+            else
+              echo "未找到有效的经济学人目录。"
+            fi
+          else
+            echo "经济学人目录不存在。"
+          fi
+
+      # 同步纽约客到R2存储桶
+      - name: 同步纽约客到R2存储桶
+        run: |
+          if [ -d "./02_new_yorker" ]; then
+            LATEST_NEWYORKER_DIR=$(find ./02_new_yorker -maxdepth 1 -type d | sort -r | head -n 1)
+            if [ -n "$LATEST_NEWYORKER_DIR" ]; then
+              for file in "$LATEST_NEWYORKER_DIR"/*.pdf; do
+                if [ -f "$file" ]; then
+                  filename=$(basename "$file")
+                  s3_key="new_yorker/${filename}"
+                  echo "正在上传文件到R2存储桶：$s3_key"
+                  aws s3 cp "$file" s3://${{ secrets.R2_BUCKET_NAME }}/$s3_key --endpoint-url=https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+                fi
+              done
+              echo "纽约客文件已上传到R2存储桶。"
+            else
+              echo "未找到有效的纽约客目录。"
+            fi
+          else
+            echo "纽约客目录不存在。"
+          fi
+
+      # 同步大西洋月刊到R2存储桶（Atlantic）
+      - name: 同步大西洋月刊到R2存储桶（Atlantic）
+        run: |
+          if [ -d "./04_atlantic" ]; then
+            LATEST_ATLANTIC_DIR=$(find ./04_atlantic -maxdepth 1 -type d | sort -r | head -n 1)
+            if [ -n "$LATEST_ATLANTIC_DIR" ]; then
+              for file in "$LATEST_ATLANTIC_DIR"/*.pdf; do
+                if [ -f "$file" ]; then
+                  filename=$(basename "$file")
+                  s3_key="atlantic/${filename}"
+                  echo "正在上传文件到R2存储桶：$s3_key"
+                  aws s3 cp "$file" s3://${{ secrets.R2_BUCKET_NAME }}/$s3_key --endpoint-url=https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+                fi
+              done
+              echo "大西洋月刊文件已上传到R2存储桶。"
+            else
+              echo "未找到有效的大西洋月刊目录。"
+            fi
+          else
+            echo "大西洋月刊目录不存在。"
+          fi
+
+      # 同步连线杂志到R2存储桶（Wired）
+      - name: 同步连线杂志到R2存储桶（Wired）
+        run: |
+          if [ -d "./05_wired" ]; then
+            LATEST_WIRED_DIR=$(find ./05_wired -maxdepth 1 -type d | sort -r | head -n 1)
+            if [ -n "$LATEST_WIRED_DIR" ]; then
+              for file in "$LATEST_WIRED_DIR"/*.pdf; do
+                if [ -f "$file" ]; then
+                  filename=$(basename "$file")
+                  s3_key="wired/${filename}"
+                  echo "正在上传文件到R2存储桶：$s3_key"
+                  aws s3 cp "$file" s3://${{ secrets.R2_BUCKET_NAME }}/$s3_key --endpoint-url=https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+                fi
+              done
+              echo "连线杂志文件已上传到R2存储桶。"
+            else
+              echo "未找到有效的连线杂志目录。"
+            fi
+          else
+            echo "连线杂志目录不存在。"
+          fi
+
