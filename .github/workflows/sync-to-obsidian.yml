@@ -50,7 +50,7 @@ jobs:
           output = json
           s3 =
             addressing_style = virtual
-            endpoint_url = https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+            endpoint_url = https://0c631cf1ad0f49201a8262eb0b4d5214.r2.cloudflarestorage.com
           EOF
 
       # 列出目录内容，以便于调试
@@ -76,7 +76,7 @@ jobs:
                   filename=$(basename "$file")
                   s3_key="economist/${filename}"
                   echo "正在上传文件到R2存储桶：$s3_key"
-                  aws s3 cp "$file" s3://${{ secrets.R2_BUCKET_NAME }}/$s3_key --endpoint-url=https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+                  aws s3 cp "$file" s3://sxlll-obsidian-sync/$s3_key --endpoint-url=https://0c631cf1ad0f49201a8262eb0b4d5214.r2.cloudflarestorage.com
                 fi
               done
               echo "经济学人文件已上传到R2存储桶。"
@@ -98,7 +98,7 @@ jobs:
                   filename=$(basename "$file")
                   s3_key="new_yorker/${filename}"
                   echo "正在上传文件到R2存储桶：$s3_key"
-                  aws s3 cp "$file" s3://${{ secrets.R2_BUCKET_NAME }}/$s3_key --endpoint-url=https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+                  aws s3 cp "$file" s3://sxlll-obsidian-sync/$s3_key --endpoint-url=https://0c631cf1ad0f49201a8262eb0b4d5214.r2.cloudflarestorage.com
                 fi
               done
               echo "纽约客文件已上传到R2存储桶。"
@@ -120,7 +120,7 @@ jobs:
                   filename=$(basename "$file")
                   s3_key="atlantic/${filename}"
                   echo "正在上传文件到R2存储桶：$s3_key"
-                  aws s3 cp "$file" s3://${{ secrets.R2_BUCKET_NAME }}/$s3_key --endpoint-url=https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+                  aws s3 cp "$file" s3://sxlll-obsidian-sync/$s3_key --endpoint-url=https://0c631cf1ad0f49201a8262eb0b4d5214.r2.cloudflarestorage.com
                 fi
               done
               echo "大西洋月刊文件已上传到R2存储桶。"
@@ -142,7 +142,7 @@ jobs:
                   filename=$(basename "$file")
                   s3_key="wired/${filename}"
                   echo "正在上传文件到R2存储桶：$s3_key"
-                  aws s3 cp "$file" s3://${{ secrets.R2_BUCKET_NAME }}/$s3_key --endpoint-url=https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+                  aws s3 cp "$file" s3://sxlll-obsidian-sync/$s3_key --endpoint-url=https://0c631cf1ad0f49201a8262eb0b4d5214.r2.cloudflarestorage.com
                 fi
               done
               echo "连线杂志文件已上传到R2存储桶。"
@@ -152,4 +152,3 @@ jobs:
           else
             echo "连线杂志目录不存在。"
           fi
-
