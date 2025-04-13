@@ -103,12 +103,20 @@ jobs:
                 echo "已存在: $s3_key"
               else
                 echo "上传中: $file"
-                aws s3api put-object \
-                  --bucket ${{ secrets.R2_BUCKET_NAME }} \
-                  --key "$s3_key" \
-                  --body "$file" \
-                  --content-length $(stat -c%s "$file") \
-                  --endpoint-url="$R2_ENDPOINT"
+
+                n=0
+                until [ $n -ge 3 ]; do
+                  aws s3api put-object \
+                    --bucket ${{ secrets.R2_BUCKET_NAME }} \
+                    --key "$s3_key" \
+                    --body "$file" \
+                    --content-length $(stat -c%s "$file") \
+                    --endpoint-url="$R2_ENDPOINT" && break
+                  n=$((n+1))
+                  echo "上传失败，重试第 $n 次..."
+                  sleep 5
+                done
+
               fi
             fi
           done
@@ -131,12 +139,20 @@ jobs:
                 echo "已存在: $s3_key"
               else
                 echo "上传中: $file"
-                aws s3api put-object \
-                  --bucket ${{ secrets.R2_BUCKET_NAME }} \
-                  --key "$s3_key" \
-                  --body "$file" \
-                  --content-length $(stat -c%s "$file") \
-                  --endpoint-url="$R2_ENDPOINT"
+
+                n=0
+                until [ $n -ge 3 ]; do
+                  aws s3api put-object \
+                    --bucket ${{ secrets.R2_BUCKET_NAME }} \
+                    --key "$s3_key" \
+                    --body "$file" \
+                    --content-length $(stat -c%s "$file") \
+                    --endpoint-url="$R2_ENDPOINT" && break
+                  n=$((n+1))
+                  echo "上传失败，重试第 $n 次..."
+                  sleep 5
+                done
+
               fi
             fi
           done
@@ -162,12 +178,20 @@ jobs:
                     echo "已存在: $s3_key"
                   else
                     echo "上传中: $file"
-                    aws s3api put-object \
-                      --bucket ${{ secrets.R2_BUCKET_NAME }} \
-                      --key "$s3_key" \
-                      --body "$file" \
-                      --content-length $(stat -c%s "$file") \
-                      --endpoint-url="$R2_ENDPOINT"
+
+                    n=0
+                    until [ $n -ge 3 ]; do
+                      aws s3api put-object \
+                        --bucket ${{ secrets.R2_BUCKET_NAME }} \
+                        --key "$s3_key" \
+                        --body "$file" \
+                        --content-length $(stat -c%s "$file") \
+                        --endpoint-url="$R2_ENDPOINT" && break
+                      n=$((n+1))
+                      echo "上传失败，重试第 $n 次..."
+                      sleep 5
+                    done
+
                   fi
                 fi
               done
@@ -195,12 +219,20 @@ jobs:
                     echo "已存在: $s3_key"
                   else
                     echo "上传中: $file"
-                    aws s3api put-object \
-                      --bucket ${{ secrets.R2_BUCKET_NAME }} \
-                      --key "$s3_key" \
-                      --body "$file" \
-                      --content-length $(stat -c%s "$file") \
-                      --endpoint-url="$R2_ENDPOINT"
+
+                    n=0
+                    until [ $n -ge 3 ]; do
+                      aws s3api put-object \
+                        --bucket ${{ secrets.R2_BUCKET_NAME }} \
+                        --key "$s3_key" \
+                        --body "$file" \
+                        --content-length $(stat -c%s "$file") \
+                        --endpoint-url="$R2_ENDPOINT" && break
+                      n=$((n+1))
+                      echo "上传失败，重试第 $n 次..."
+                      sleep 5
+                    done
+
                   fi
                 fi
               done
