@@ -43,7 +43,7 @@ jobs:
           aws_access_key_id = ${{ secrets.R2_ACCESS_KEY_ID }}
           aws_secret_access_key = ${{ secrets.R2_SECRET_ACCESS_KEY }}
           EOF
-          
+    
           cat > ~/.aws/config << EOF
           [default]
           region = auto
@@ -52,7 +52,6 @@ jobs:
             addressing_style = virtual
             endpoint_url = https://0c631cf1ad0f49201a8262eb0b4d5214.r2.cloudflarestorage.com
           EOF
-
       # 列出目录内容，以便于调试
       - name: 列出目录内容
         run: |
